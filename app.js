@@ -8,35 +8,76 @@ class Calculator {
     this.currentOperand = "";
     this.previousOperand = "";
     this.operation = undefined;
+    this.isOperationComplete = false;
   }
-  delete() {}
+  delete() {
+    this.currentOperand = this.currentOperand.slice(0, -1);
+  }
   appendNumber(number) {
     if (number === "." && this.currentOperand.includes(".")) {
       return;
     }
-    this.currentOperand = this.currentOperand + number;
+    if (this.isOperationComplete === true) {
+      this.currentOperand = number;
+      this.isOperationComplete = false;
+    } else {
+      this.currentOperand = this.currentOperand + number;
+    }
   }
   chooseOperation(operation) {
-		if(this.currentOperand === ''){
-			return;
-		}
-		if(this.previousOperand !== ''){
-			this.compute();
-		}
-		this.operation = operation;
-		this.previousOperand = this.currentOperand;
-		this.currentOperand = '';
-	}
-  compute() {}
+    if (this.currentOperand === "") {
+      return;
+    }
+    if (this.previousOperand !== "") {
+      this.compute();
+    }
+    this.operation = operation;
+    this.previousOperand = this.currentOperand;
+    this.currentOperand = "";
+  }
+  compute() {
+    let computation;
+    const prev = parseFloat(this.previousOperand);
+    const current = parseFloat(this.currentOperand);
+    if (isNaN(prev) || isNaN(current)) {
+      return;
+    }
+    switch (this.operation) {
+      case "+":
+        computation = prev + current;
+        break;
+      case "-":
+        computation = prev - current;
+        break;
+      case "*":
+        computation = prev * current;
+        break;
+      case "÷":
+        computation = prev / current;
+        break;
+      default:
+        return;
+    }
+    this.currentOperand = computation;
+    this.operation = undefined;
+    this.previousOperand = "";
+    this.isOperationComplete = true;
+  }
   updateDisplay() {
     this.currentOperandTextElement.innerText = this.currentOperand;
     this.previousOperandTextElement.innerText = this.previousOperand;
+    if (this.operation === undefined) {
+      this.currentOperandTextElement.innerText = "" + this.currentOperand;
+    } else {
+      this.currentOperandTextElement.innerText =
+        this.operation + " " + this.currentOperand;
+    }
   }
 }
 
 const numberButtons = document.querySelectorAll("[data-number]");
-const operationsButton = document.querySelectorAll("[data-operation]");
-const equalsButton = document.querySelector("[data-equal]");
+const operationButtons = document.querySelectorAll("[data-operation]");
+const equalsButton = document.querySelector("[data-equals]");
 const allClearButton = document.querySelector("[data-all-clear]");
 const deleteButton = document.querySelector("[data-delete]");
 const previousOperandTextElement = document.querySelector(
@@ -65,7 +106,17 @@ operationButtons.forEach((button) => {
   });
 });
 
-equalsButton.addEventListener('click', button => {
-	calculator.compute();
-	calculator.updateDisplay();
-})
+equalsButton.addEventListener("click", (button) => {
+  calculator.compute();
+  calculator.updateDisplay();
+});
+
+allClearButton.addEventListener("click", (button) => {
+  calculator.clear();
+  calculator.updateDisplay();
+});
+
+deleteButton.addEventListener("click", (button) => {
+  calculator.delete();
+  calculator.updateDisplay();
+});
