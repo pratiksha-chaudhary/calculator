@@ -58,7 +58,7 @@ class Calculator {
       default:
         return;
     }
-    this.currentOperand = computation;
+    this.currentOperand = computation.toString();
     this.operation = undefined;
     this.previousOperand = "";
     this.isOperationComplete = true;
